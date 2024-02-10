@@ -79,5 +79,5 @@
     "function upgradeToAndCall(address,bytes) payable",
     "function withdraw() payable"
   ],
-  "contractAddress": "0x35029F03602454A6149b353dd8d227c4f2D99B7c"
+  "contractAddress": "0x35029f03602454a6149b353dd8d227c4f2d99b7c"
 }
