@@ -16,7 +16,7 @@ module.exports = {
         console.log("Provider and contract initialized");
 
         async function getImageUrl(tokenId) {
-            const uri = await contract.baseURI().then((uri) => {return `${uri}${tokenId}.json`})
+            const uri = await contract.baseURI().then((uri) => {return `https://ipfs.filebase.io/ipfs/Qmcs2hj3FacNR95Mc4BrzZJbJWqJ7ZfyzvJkrAfov5BL9p/${tokenId}.json`})
             console.log("URI:", uri);
             const response = await axios.get(uri);
             const json = response.data;
