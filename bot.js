@@ -66,4 +66,4 @@ app.listen(port, () => {
   console.log(`Discord Bot app listening at http://localhost:${port}`)
 })
 
-exports.handler = serverless(app);
+module.export = app
