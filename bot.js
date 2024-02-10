@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000;
+const serverless = require('serverless');
 
 const fs = require('fs');
 const { prefix } = require('./config.json');
@@ -65,4 +66,4 @@ app.listen(port, () => {
   console.log(`Discord Bot app listening at http://localhost:${port}`)
 })
 
-export const handler = serverless(app);
+exports.handler = serverless(app);
