@@ -23,13 +23,13 @@ module.exports = {
             return image;
         }
 
-        // Elabora gli eventi filtrati
+        // Cattura gli eventi futuri
         const mintedEvent = contract.filters.NftMinted(null, null);
 
         console.log(mintedEvent)
 
-        // Cattura gli eventi futuri
-        contract.on(mintedEvent, async (account, tokenIds, event) => {
+        // Cattura l'evento una sola volta e definisci la funzione di gestione
+        contract.once(mintedEvent, async (account, tokenIds, event) => {
             const transactionHash = event.transactionHash;
 
             // Memorizza il nuovo transactionHash
