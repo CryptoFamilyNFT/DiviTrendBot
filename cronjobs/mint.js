@@ -3,11 +3,11 @@ const Discord = require('discord.js');
 const { contractAddress, ABI } = require('../config.json');
 const axios = require("axios");
 
-var lastTransactionHash = null;
 
 module.exports = {
     name: 'mint',
     description: 'mint bot',
+    interval: 10000,
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
         const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/arbitrum");
@@ -23,23 +23,14 @@ module.exports = {
             return image;
         }
 
-        // Cattura gli eventi futuri
-        const mintedEvent = contract.filters.NftMinted(null, null);
-
-        console.log(mintedEvent)
-
-        // Cattura l'evento una sola volta e definisci la funzione di gestione
-        contract.once(mintedEvent, async (account, tokenIds, event) => {
+        // Funzione per gestire l'evento NftMinted
+        async function handleMintedEvent(event) {
+            const account = event.args[0];
+            const tokenIds = event.args[1];
             const transactionHash = event.transactionHash;
 
-            // Memorizza il nuovo transactionHash
-            lastTransactionHash = transactionHash;
-            console.log("New event - Account:", account);
-            console.log("New event - Token IDs:", tokenIds);
-
-            tokenIds.forEach(async (tokenId) => { // Itera su ogni tokenId
+            tokenIds.forEach(async (tokenId) => {
                 try {
-                    // Qui puoi eseguire la tua logica per recuperare l'URL dell'immagine e inviare il messaggio su Discord
                     const imageUrl = await getImageUrl(tokenId);
                     console.log("New event - Image URL:", imageUrl);
 
@@ -47,7 +38,7 @@ module.exports = {
                         .setColor('#0099ff')
                         .setTitle("Divitrend Factories #" + tokenId)
                         .setURL(imageUrl)
-                        .setDescription(`has just been minted $FACT #${tokenId}`)
+                        .setDescription(`[${account.slice(0,5)}...] has just minted: $FACT #${tokenId}`)
                         .setThumbnail("https://media.istockphoto.com/id/1419410282/it/foto/foresta-silenziosa-in-primavera-con-bellissimi-raggi-solari-luminosi.jpg?s=1024x1024&w=is&k=20&c=862RzuFSftSKPGBT1WtN6NKBaJNZkBbcNuNG7uKA9VQ=")
                         .addField("FROM", `[${account}]`, true)
                         .addField("TX HASH:", `[${transactionHash}]`, true);
@@ -58,6 +49,21 @@ module.exports = {
                     console.error(error);
                 }
             });
-        });
+        }
+
+        // Ottieni l'ultimo blocco corrente
+        const latestBlock = await provider.getBlockNumber();
+        console.log("Latest block:", latestBlock);
+
+        // Ottieni l'evento NftMinted per l'ultimo blocco corrente
+        const filter = {
+            address: contract.address,
+            topics: [ethers.utils.id("NftMinted(uint256,uint256)")], // Event signature
+            fromBlock: latestBlock - 20,
+            toBlock: latestBlock
+        };
+
+        const logs = await provider.getLogs(filter);
+        logs.forEach(handleMintedEvent);
     }
 };
