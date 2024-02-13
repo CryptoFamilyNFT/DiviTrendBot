@@ -10,7 +10,7 @@ module.exports = {
     description: 'mint bot',
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
-        const provider = new ethers.providers.JsonRpcProvider("https://arbitrum.llamarpc.com");
+        const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/arbitrum");
         const contract = new ethers.Contract(contractAddress, ABI, provider);
         console.log("Provider and contract initialized");
 
