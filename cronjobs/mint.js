@@ -8,7 +8,6 @@ var lastTransactionHash = null;
 module.exports = {
     name: 'mint',
     description: 'mint bot',
-    interval: 30000,
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
         const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/27C6ewla3Kb4W1kLmUk8lzfqUnj");
