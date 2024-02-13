@@ -23,12 +23,10 @@ module.exports = {
             return image;
         }
 
-        // Ottieni l'ultimo blocco
-        const latestBlock = await provider.getBlockNumber();
-        console.log("Latest block:", latestBlock);
-
         // Elabora gli eventi filtrati
         const mintedEvent = contract.filters.NftMinted(null, null);
+
+        console.log(mintedEvent)
 
         // Cattura gli eventi futuri
         contract.on(mintedEvent, async (account, tokenIds, event) => {
