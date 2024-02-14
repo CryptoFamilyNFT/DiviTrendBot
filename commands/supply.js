@@ -10,6 +10,8 @@ module.exports = {
 			return message.channel.send(`You didn't provide a token id, ${message.author}!`);
 		}
 
+        console.log(message, args)
+
 		if (isNaN(parseInt(args[0]))) {
 			return message.channel.send(`Token id must be a number!`);
 		}

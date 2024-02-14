@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const { contractAddress, ABI } = require('../config.json');
 const axios = require("axios");
 
+let blocksWithoutEvents = 0;
 
 module.exports = {
     name: 'mint',
@@ -23,7 +24,6 @@ module.exports = {
             return image;
         }
 
-        // Funzione per gestire l'evento NftMinted
         async function handleMintedEvent(event) {
             const account = event.args[0];
             const tokenIds = event.args[1];
@@ -39,7 +39,7 @@ module.exports = {
                         .setTitle("Divitrend Factories #" + tokenId)
                         .setURL(imageUrl)
                         .setDescription(`[${account.slice(0,5)}...] has just minted: $FACT #${tokenId}`)
-                        .setThumbnail("https://media.istockphoto.com/id/1419410282/it/foto/foresta-silenziosa-in-primavera-con-bellissimi-raggi-solari-luminosi.jpg?s=1024x1024&w=is&k=20&c=862RzuFSftSKPGBT1WtN6NKBaJNZkBbcNuNG7uKA9VQ=")
+                        .setThumbnail(imageUrl)
                         .addField("FROM", `[${account}]`, true)
                         .addField("TX HASH:", `[${transactionHash}]`, true);
 
@@ -51,19 +51,38 @@ module.exports = {
             });
         }
 
-        // Ottieni l'ultimo blocco corrente
-        const latestBlock = await provider.getBlockNumber();
-        console.log("Latest block:", latestBlock);
+        // Definisci la funzione per pulire la memoria
+        function cleanMemory() {
+            console.log("Cleaning JavaScript memory...");
+            global.gc(); // Pulisci la memoria di JavaScript
+        }
 
-        // Ottieni l'evento NftMinted per l'ultimo blocco corrente
-        const filter = {
-            address: contract.address,
-            topics: [ethers.utils.id("NftMinted(uint256,uint256)")], // Event signature
-            fromBlock: latestBlock - 50,
-            toBlock: latestBlock
-        };
+        // Definisci la funzione per eseguire la ricerca di eventi
+        async function searchForEvents() {
+            const latestBlock = await provider.getBlockNumber();
+            console.log("Latest block:", latestBlock);
 
-        const logs = await provider.getLogs(filter);
-        logs.forEach(handleMintedEvent);
+            const filter = {
+                address: contract.address,
+                topics: [ethers.utils.id("NftMinted(uint256,uint256)")], // Event signature
+                fromBlock: latestBlock - 50,
+                toBlock: latestBlock
+            };
+
+            const logs = await provider.getLogs(filter);
+            if (logs.length === 0) {
+                blocksWithoutEvents++; // Incrementa il contatore se non vengono trovati eventi
+                if (blocksWithoutEvents >= 3) {
+                    cleanMemory(); // Pulisci la memoria dopo 3 blocchi senza eventi
+                    blocksWithoutEvents = 0; // Reimposta il contatore
+                }
+            } else {
+                blocksWithoutEvents = 0; // Reimposta il contatore se vengono trovati eventi
+                logs.forEach(handleMintedEvent);
+            }
+        }
+
+        // Esegui la ricerca di eventi ogni 10 secondi
+        setInterval(searchForEvents, 10000);
     }
 };
