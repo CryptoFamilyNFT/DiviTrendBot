@@ -15,7 +15,6 @@ client.cronjobs = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
-  console.log(command.name, command)
   // set a new item in the Collection
   // with the key as the command name and the value as the exported module
   client.commands.set('fact', command);
@@ -42,6 +41,7 @@ client.on('ready', () => {
 client.on('message', msg => {
   if (!msg.content.startsWith(prefix) || msg.author.bot) return;
 
+  console.log(msg)
   const args = msg.content.slice(prefix.length).trim().split(' ');
   const commandName  = args.shift().toLowerCase();
 
