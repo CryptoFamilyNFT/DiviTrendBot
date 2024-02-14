@@ -2,13 +2,12 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000;
-const serverless = require('serverless-http');
-
+const { Client, Intents } = require('discord.js');
 const fs = require('fs');
 const { prefix } = require('./config.json');
 const Discord = require('discord.js');
 
-const client = new Discord.Client();
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.MESSAGE_CONTENT] });
 client.commands = new Discord.Collection();
 client.cronjobs = new Discord.Collection();
 
@@ -38,22 +37,23 @@ client.on('ready', () => {
   });
 })
 
-client.on('message', msg => {
-  if (!msg.content.startsWith(prefix) || msg.author.bot) return;
+client.on('message', message => {
+  console.log(message.content)
+  if (!message.content === 'fact' || message.author.bot) return;
 
-  console.log(msg)
-  const args = msg.content.slice(prefix.length).trim().split(' ');
+  const args = message.content.slice(prefix.length).trim().split(' ');
   const commandName  = args.shift().toLowerCase();
 
+  console.log(args, commandName)
   if (!client.commands.has(commandName)) return;
 
   const command = client.commands.get(commandName);
 
   try {
-    command.execute(msg, args);
+    command.execute(message, args);
   } catch (error) {
     console.error(error);
-    msg.reply('there was an error trying to execute that command!');
+    message.reply('there was an error trying to execute that command!');
   }
 })
 

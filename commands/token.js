@@ -1,54 +1,67 @@
 const fetch = require('node-fetch');
 const { openseaAssetUrl } = require('../config.json');
-
+const { contractAddress, ABI } = require('../config.json');
+const axios = require("axios");
+const { Client, Intents } = require('discord.js');
 const Discord = require('discord.js');
+const { ethers } = require("ethers");
 
 module.exports = {
 	name: process.env.DISCORD_TOKEN_COMMAND || "token",
-	execute(message, args) {
-    if (!args.length) {
-      return message.channel.send(`You didn't provide a token id, ${message.author}!`);
-    }
+	async execute(message, args) {
+		if (!args.length) {
+			return message.channel.send(`You didn't provide a token id, ${message.author}!`);
+		}
 
-    if (isNaN(parseInt(args[0]))) {
-      return message.channel.send(`Token id must be a number!`);
-    }
+        console.log("Message & args: ", message, args)
 
-    let url = `${openseaAssetUrl}/${process.env.CONTRACT_ADDRESS}/${args[0]}`;
-    let settings = { 
-      method: "GET",
-      headers: process.env.OPEN_SEA_API_KEY == null ? {} : {
-        "X-API-KEY": process.env.OPEN_SEA_API_KEY
-      }
-    };
-    
-    fetch(url, settings)
-        .then(res => {
-          if (res.status == 404 || res.status == 400)
-          {
-            throw new Error("Token id doesn't exist.");
-          }
-          if (res.status != 200)
-          {
-            throw new Error(`Couldn't retrieve metadata: ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then((metadata) => {
-            const embedMsg = new Discord.MessageEmbed()
-              .setColor('#0099ff')
-              .setTitle(metadata.name)
-              .setURL(metadata.permalink)
-              .addField("Owner", metadata.owner.user?.username || metadata.owner.address.slice(0,8))
-              .setImage(metadata.image_url);
+		if (isNaN(parseInt(args[0]))) {
+			return message.channel.send(`Token id must be a number!`);
+		}
 
-            metadata.traits.forEach(function(trait){
-              embedMsg.addField(trait.trait_type, `${trait.value} (${Number(trait.trait_count/metadata.collection.stats.count).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2})})`, true)
-              //embedMsg.addField(trait.trait_type, `${trait.value}`, true)
-            });
+		const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/95785e3b0d9a4434b3e2d1127bd15fbc");
+		const contract = new ethers.Contract('0x35029F03602454A6149b353dd8d227c4f2D99B7c', ABI, provider);
 
-            message.channel.send(embedMsg);
-        })
-        .catch(error => message.channel.send(error.message));
+		const tokenId = Number(args[0]);
+        console.log(tokenId)
+
+        async function getImageUrl(tokenId) {
+            try {
+                const uri = await contract.tokenURI(tokenId);
+                console.log("Base URI:", uri);
+                
+                const response = await axios.get('https://ipfs.filebase.io/ipfs/' + uri.slice(7));
+                console.log("Response data:", response.data);
+        
+                const json = response.data;
+                const image = 'https://ipfs.filebase.io/ipfs/' + json.image.slice(7);
+                console.log("Image URL:", image);
+        
+                return image;
+            } catch (error) {
+                console.error("Error in getImageUrl:", error);
+                throw error; // Rilancia l'errore per gestirlo nel chiamante
+            }
+        }
+
+		try {
+            console.log("tokenId", tokenId)
+			const owner = await contract.ownerOf(tokenId);
+			const ownerAddress = owner.toString();
+
+			const imageUrl = await getImageUrl(tokenId);
+
+			const embedMsg = new Discord.MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle(`Divitrend Factories ${tokenId}`)
+				.setURL(imageUrl)
+				.addField("Owner: ", ownerAddress)
+				.setImage(imageUrl);
+
+			message.channel.send(embedMsg);
+		} catch (error) {
+            console.log(error)
+			message.channel.send(tokenId);
+		}
 	},
 };
