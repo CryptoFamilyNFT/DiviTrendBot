@@ -3,12 +3,10 @@ const Discord = require('discord.js');
 const { contractAddress, ABI } = require('../config.json');
 const axios = require("axios");
 
-let blocksWithoutEvents = 0;
-
 module.exports = {
     name: 'mint',
     description: 'mint bot',
-    interval: 10000,
+    interval: 10000, // Puoi rimuovere questo campo se non stai più utilizzando l'intervallo
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
         const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/arbitrum");
@@ -24,10 +22,10 @@ module.exports = {
             return image;
         }
 
-        async function handleMintedEvent(event) {
-            const account = event.args[0];
-            const tokenIds = event.args[1];
-            const transactionHash = event.transactionHash;
+        // Sottoscrivi l'evento NftMinted
+        contract.on("NftMinted", async (account, tokenIds, event) => {
+            console.log("New event - Account:", account);
+            console.log("New event - Token IDs:", tokenIds);
 
             tokenIds.forEach(async (tokenId) => {
                 try {
@@ -41,7 +39,7 @@ module.exports = {
                         .setDescription(`[${account.slice(0,5)}...] has just minted: $FACT #${tokenId}`)
                         .setThumbnail(imageUrl)
                         .addField("FROM", `[${account}]`, true)
-                        .addField("TX HASH:", `[${transactionHash}]`, true);
+                        .addField("TX HASH:", `[${event.transactionHash}]`, true);
 
                     const channel = await client.channels.fetch(process.env.DISCORD_LISTING_CHANNEL_ID);
                     channel.send(embedMsg);
@@ -49,39 +47,6 @@ module.exports = {
                     console.error(error);
                 }
             });
-        }
-
-        // Definisci la funzione per pulire la memoria
-        function cleanMemory() {
-            console.log("Cleaning JavaScript memory...");
-        }
-
-        // Definisci la funzione per eseguire la ricerca di eventi
-        async function searchForEvents() {
-            const latestBlock = await provider.getBlockNumber();
-            console.log("Latest block:", latestBlock);
-
-            const filter = {
-                address: contract.address,
-                topics: [ethers.utils.id("NftMinted(uint256,uint256)")], // Event signature
-                fromBlock: latestBlock - 50,
-                toBlock: latestBlock
-            };
-
-            const logs = await provider.getLogs(filter);
-            if (logs.length === 0) {
-                blocksWithoutEvents++; // Incrementa il contatore se non vengono trovati eventi
-                if (blocksWithoutEvents >= 3) {
-                    cleanMemory(); // Pulisci la memoria dopo 3 blocchi senza eventi
-                    blocksWithoutEvents = 0; // Reimposta il contatore
-                }
-            } else {
-                blocksWithoutEvents = 0; // Reimposta il contatore se vengono trovati eventi
-                logs.forEach(handleMintedEvent);
-            }
-        }
-
-        // Esegui la ricerca di eventi ogni 10 secondi
-        setInterval(searchForEvents, 10000);
+        });
     }
 };
