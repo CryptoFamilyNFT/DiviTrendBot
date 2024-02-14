@@ -44,22 +44,8 @@ module.exports = {
 
 		try {
             console.log("tokenId", tokenId)
-			const owner = await contract.ownerOf(tokenId);
-			const ownerAddress = owner.toString();
-
-			const imageUrl = await getImageUrl(tokenId);
-
-			const embedMsg = new Discord.MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle(`Divitrend Factories ${tokenId}`)
-				.setURL(imageUrl)
-				.addField("Owner: ", ownerAddress)
-				.setImage(imageUrl);
-
-			message.channel.send(embedMsg);
 		} catch (error) {
             console.log(error)
-			message.channel.send(tokenId);
 		}
 	},
 };
