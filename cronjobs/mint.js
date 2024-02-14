@@ -54,7 +54,6 @@ module.exports = {
         // Definisci la funzione per pulire la memoria
         function cleanMemory() {
             console.log("Cleaning JavaScript memory...");
-            global.gc(); // Pulisci la memoria di JavaScript
         }
 
         // Definisci la funzione per eseguire la ricerca di eventi

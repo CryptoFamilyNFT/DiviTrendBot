@@ -18,7 +18,7 @@ for (const file of commandFiles) {
   console.log(command.name, command)
   // set a new item in the Collection
   // with the key as the command name and the value as the exported module
-  client.commands.set(command.name, command);
+  client.commands.set('fact', command);
 }
 
 const cronFiles = fs.readdirSync('./cronjobs').filter(file => file.endsWith('.js'));
