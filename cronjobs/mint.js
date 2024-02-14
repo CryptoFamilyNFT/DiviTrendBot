@@ -59,7 +59,7 @@ module.exports = {
         const filter = {
             address: contract.address,
             topics: [ethers.utils.id("NftMinted(uint256,uint256)")], // Event signature
-            fromBlock: latestBlock - 20,
+            fromBlock: latestBlock - 50,
             toBlock: latestBlock
         };
 
