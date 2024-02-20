@@ -3,43 +3,39 @@ const Discord = require('discord.js');
 const { contractAddress, ABI } = require('../config.json');
 const axios = require("axios");
 
-async function getImageUrl(tokenId) {
-    const uri = `https://ipfs.filebase.io/ipfs/Qmc5bNfd1kiKuetdXGUsvSbX1aPZPZgYrSTjY6SPPHAu5Q/${tokenId}`
-    console.log("URI:", uri);
-    const response = await axios.get(uri);
-    const json = response.data;
-    const image = 'https://ipfs.filebase.io/ipfs/' + json.image.slice(7)
-    return image;
-}
-
-
 module.exports = {
     name: 'mint',
     description: 'mint bot',
+    interval: 30000, // Esegui ogni 30 secondi
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
+    once: false, // Ascolta l'evento più volte
+
     async execute(client) {
-        const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-sepolia.blockpi.network/v1/rpc/public");
+        const provider = new ethers.providers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
         const contract = new ethers.Contract('0xa0991a14aa74aDF7C25b1409f49D2981132a46B8', ABI, provider);
         console.log("Provider and contract initialized");
 
-        // Sottoscrivi l'evento NftMinted
-        contract.on("NftMinted", async (account, tokenIds, event) => {
-            console.log("New event - Account:", account);
-            console.log("New event - Token IDs:", tokenIds);
+        // Funzione per gestire l'evento NftMinted
+        async function handleMintedEvent(event) {
+            const account = event.args[0];
+            const tokenIds = event.args[1];
+            console.log("TOKEND IDS = ", tokenIds)
+            const transactionHash = event.transactionHash;
+            console.log(event)
 
             tokenIds.forEach(async (tokenId) => {
                 try {
-                    const imageUrl = await getImageUrl(tokenId);
-                    console.log("New event - Image URL:", imageUrl);
+                    const image = 'https://ipfs.filebase.io/ipfs/' + 'QmPejW5kfFj67JccPCpXcazyehhxNgrg2h1WR6burL9UDj/' + tokenId + '.png'
+                    console.log("New event - Image URL:", image);
 
                     const embedMsg = new Discord.MessageEmbed()
                         .setColor('#0099ff')
                         .setTitle("Divitrend Factories #" + tokenId)
-                        .setURL(imageUrl)
-                        .setDescription(`[${account.slice(0,5)}...] has just minted: $FACT #${tokenId}`)
-                        .setThumbnail(imageUrl)
+                        .setURL(image)
+                        .setDescription(`[${account.slice(0, 5)}...] has just minted: $FACT #${tokenId}`)
+                        .setThumbnail(image)
                         .addField("FROM", `[${account}]`, true)
-                        .addField("TX HASH:", `[${event.transactionHash}]`, true);
+                        .addField("TX HASH:", `[${transactionHash}]`, true);
 
                     const channel = await client.channels.fetch(process.env.DISCORD_LISTING_CHANNEL_ID);
                     channel.send(embedMsg);
@@ -47,6 +43,31 @@ module.exports = {
                     console.error(error);
                 }
             });
-        });
+        }
+
+        // Funzione per controllare gli eventi dei blocchi
+        async function checkForEvents() {
+            try {
+                const latestBlock = await provider.getBlockNumber();
+                console.log("Latest block:", latestBlock);
+
+                const fromBlock = latestBlock - 150; // Utilizza l'ultimo blocco controllato
+                const toBlock = latestBlock;
+
+                console.log("Checking for events from block", fromBlock, "to block", toBlock); // Log per i blocchi che stiamo controllando
+
+                // Ottieni tutti gli eventi nei blocchi specificati
+                contract.on("NftMinted", (account, tokenIds, event) => {
+                    console.log("New event - Token IDs:", tokenIds);
+                    handleMintedEvent({ args: [account, tokenIds], transactionHash: event.transactionHash });
+                });
+
+            } catch (error) {
+                console.error("An error occurred while fetching events:", error);
+            }
+        }
+
+        // Esegui la funzione checkForEvents quando il modulo viene inizializzato
+        checkForEvents();
     }
 };
