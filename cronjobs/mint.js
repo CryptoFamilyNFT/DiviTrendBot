@@ -3,24 +3,25 @@ const Discord = require('discord.js');
 const { contractAddress, ABI } = require('../config.json');
 const axios = require("axios");
 
+async function getImageUrl(tokenId) {
+    const uri = `https://ipfs.filebase.io/ipfs/Qmc5bNfd1kiKuetdXGUsvSbX1aPZPZgYrSTjY6SPPHAu5Q/${tokenId}`
+    console.log("URI:", uri);
+    const response = await axios.get(uri);
+    const json = response.data;
+    const image = 'https://ipfs.filebase.io/ipfs/' + json.image.slice(7)
+    return image;
+}
+
+
 module.exports = {
     name: 'mint',
     description: 'mint bot',
-    interval: 10000, // Puoi rimuovere questo campo se non stai più utilizzando l'intervallo
+    interval: 1000, // Puoi rimuovere questo campo se non stai più utilizzando l'intervallo
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
-        const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/arbitrum");
-        const contract = new ethers.Contract(contractAddress, ABI, provider);
+        const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-sepolia.blockpi.network/v1/rpc/public");
+        const contract = new ethers.Contract('0xa0991a14aa74aDF7C25b1409f49D2981132a46B8', ABI, provider);
         console.log("Provider and contract initialized");
-
-        async function getImageUrl(tokenId) {
-            const uri = await contract.baseURI().then((uri) => { return `https://ipfs.filebase.io/ipfs/Qmcs2hj3FacNR95Mc4BrzZJbJWqJ7ZfyzvJkrAfov5BL9p/${tokenId}` })
-            console.log("URI:", uri);
-            const response = await axios.get(uri);
-            const json = response.data;
-            const image = 'https://ipfs.filebase.io/ipfs/' + json.image.slice(7)
-            return image;
-        }
 
         // Sottoscrivi l'evento NftMinted
         contract.on("NftMinted", async (account, tokenIds, event) => {
