@@ -16,7 +16,6 @@ async function getImageUrl(tokenId) {
 module.exports = {
     name: 'mint',
     description: 'mint bot',
-    interval: 1000, // Puoi rimuovere questo campo se non stai più utilizzando l'intervallo
     enabled: process.env.DISCORD_MINT_CHANNEL_ID != null,
     async execute(client) {
         const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-sepolia.blockpi.network/v1/rpc/public");
