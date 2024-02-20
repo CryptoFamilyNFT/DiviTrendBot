@@ -11,8 +11,8 @@ module.exports = {
     once: false, // Ascolta l'evento più volte
 
     async execute(client) {
-        const provider = new ethers.providers.JsonRpcProvider("https://sepolia-rollup.arbitrum.io/rpc");
-        const contract = new ethers.Contract('0xa0991a14aa74aDF7C25b1409f49D2981132a46B8', ABI, provider);
+        const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/arbitrum");
+        const contract = new ethers.Contract('0x35029f03602454a6149b353dd8d227c4f2d99b7c', ABI, provider);
         console.log("Provider and contract initialized");
 
         // Funzione per gestire l'evento NftMinted
