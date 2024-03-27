@@ -2,50 +2,57 @@
   "prefix": "/",
   "openseaAssetUrl": "https://api.opensea.io/api/v1/asset",
   "openseaEventsUrl": "https://api.opensea.io/api/v1/events",
-  "ABI721": [
+  "ABI": [
     "constructor()",
-    "error ApprovalCallerNotOwnerNorApproved()",
-    "error ApprovalQueryForNonexistentToken()",
-    "error ApprovalToCurrentOwner()",
-    "error ApproveToCaller()",
-    "error BalanceQueryForZeroAddress()",
-    "error MintToZeroAddress()",
-    "error MintZeroQuantity()",
-    "error OwnerIndexOutOfBounds()",
-    "error OwnerQueryForNonexistentToken()",
-    "error TokenIndexOutOfBounds()",
-    "error TransferCallerNotOwnerNorApproved()",
-    "error TransferFromIncorrectOwner()",
-    "error TransferToNonERC721ReceiverImplementer()",
-    "error TransferToZeroAddress()",
+    "error Fact__ContractsCannotMint()",
+    "error Fact__InvalidAmount()",
+    "error Fact__MaxCostReached(uint256)",
+    "error Fact__MaxMintExceeded(uint256)",
+    "error Fact__MintAtOnceExceeded()",
+    "error Fact__MintNotLive()",
+    "error Fact__NftsSoldOut()",
+    "error Fact__NoTokensAvailable()",
+    "error Fact__NotEnoughFunds()",
+    "error Fact__TransferFailed()",
+    "error Fact__ZeroBalance()",
+    "event AdminChanged(address,address)",
     "event Approval(address indexed,address indexed,uint256 indexed)",
     "event ApprovalForAll(address indexed,address indexed,bool)",
+    "event BeaconUpgraded(address indexed)",
+    "event Initialized(uint8)",
+    "event NftMinted(address indexed,uint16[])",
+    "event NftPayed(address indexed,uint256)",
     "event OwnershipTransferred(address indexed,address indexed)",
     "event Transfer(address indexed,address indexed,uint256 indexed)",
-    "function adminMint(uint256,address)",
+    "event Upgraded(address indexed)",
+    "function adminMint(uint16,address)",
     "function approve(address,uint256)",
     "function balanceOf(address) view returns (uint256)",
     "function baseExtension() view returns (string)",
     "function baseURI() view returns (string)",
     "function calCost(uint256) view returns (uint256)",
-    "function calwCost(uint256) view returns (uint256)",
-    "function calyCost(uint256) view returns (uint256)",
-    "function cashWallet() view returns (address)",
-    "function cost() view returns (uint256)",
+    "function claimNfts()",
+    "function getActualSupply() view returns (uint16)",
     "function getApproved(uint256) view returns (address)",
-    "function hypa() view returns (address)",
-    "function hypaMint(uint256) payable",
-    "function hypaTimeStart() view returns (uint256)",
+    "function getCashWallet() view returns (address)",
+    "function getCost() view returns (uint256)",
+    "function getIdsArray(uint16) view returns (uint16)",
+    "function getIdsArrayLength() view returns (uint256)",
+    "function getMaxCost() view returns (uint256)",
+    "function getMaxMintAmount() view returns (uint16)",
+    "function getNftBoostData(uint8) view returns (uint16, uint16)",
+    "function getNftTypesArray(uint256) view returns (uint8)",
+    "function getTimeStart() view returns (uint256)",
+    "function getTotalBoosts(uint16[]) view returns (uint256, uint256)",
+    "function getTotalIdsArray() view returns (uint16[])",
+    "function getUserTokensLength(address) view returns (uint256)",
+    "function initialize()",
     "function isApprovedForAll(address,address) view returns (bool)",
-    "function isHypa() view returns (bool)",
-    "function isWhiteList(address) view returns (bool)",
-    "function limMint() view returns (uint256)",
-    "function maxMintAmount() view returns (uint256)",
-    "function maxSupply() view returns (uint256)",
-    "function mint(uint256) payable",
     "function name() view returns (string)",
     "function owner() view returns (address)",
     "function ownerOf(uint256) view returns (address)",
+    "function payNfts(uint16) payable",
+    "function proxiableUUID() view returns (bytes32)",
     "function recoverNonFungibleToken(address,uint256)",
     "function recoverToken(address)",
     "function renounceOwnership()",
@@ -56,336 +63,21 @@
     "function setBaseURI(string)",
     "function setCashWallet(address)",
     "function setCost(uint256)",
-    "function setWlist(address[])",
-    "function setmaxMintAmount(uint256)",
-    "function setwCost(uint256)",
-    "function setyCost(uint256)",
+    "function setMaxCost(uint256)",
+    "function setNftBoostData(uint8,uint16,uint16)",
+    "function setNftTypesArray(uint8[299])",
+    "function setTimeStart(uint256)",
+    "function setmaxMintAmount(uint16)",
     "function supportsInterface(bytes4) view returns (bool)",
     "function symbol() view returns (string)",
-    "function timeStart() view returns (uint256)",
-    "function tokenByIndex(uint256) view returns (uint256)",
-    "function tokenOfOwnerByIndex(address,uint256) view returns (uint256)",
     "function tokenURI(uint256) view returns (string)",
-    "function totalSupply() view returns (uint256)",
+    "function tokensOfOwner(address) view returns (uint256[])",
+    "function totalSupply() view returns (uint16)",
     "function transferFrom(address,address,uint256)",
     "function transferOwnership(address)",
-    "function getActualCost(address account, uint256 _num) public view returns(uint256)",
-    "function wMint(address) view returns (uint256)",
-    "function wcost() view returns (uint256)",
-    "function whiteList(uint256) view returns (address)",
-    "function whiteMint(uint256) payable",
-    "function withdraw() payable",
-    "function yMint(address) view returns (uint256)",
-    "function ycost() view returns (uint256)"
-  ],
-  "RewardsABI": [
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "maxids",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "huaddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "initialOwner",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "AddressInsufficientBalance",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "FailedInnerCall",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableInvalidOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableUnauthorizedAccount",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "PaymentReceived",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "PaymentReleased",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "EMwithdraw",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "Nomials",
-      "outputs": [
-        {
-          "internalType": "contract INomials",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getContractBalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "id",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address payable",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "multiRelease",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "id",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "mymultiPAYOUT",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "released",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "shares",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalReleased",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalShares",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_chidaddr",
-          "type": "address"
-        }
-      ],
-      "name": "updateCHID",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "maxids",
-          "type": "uint256"
-        }
-      ],
-      "name": "updateMaxids",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "stateMutability": "payable",
-      "type": "receive"
-    }
+    "function upgradeTo(address)",
+    "function upgradeToAndCall(address,bytes) payable",
+    "function withdraw() payable"
   ],
   "contractAddress": "0x35029f03602454a6149b353dd8d227c4f2d99b7c"
 }
