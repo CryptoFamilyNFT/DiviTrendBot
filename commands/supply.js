@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 const Discord = require('discord.js');
-const { contractAddress, ABI } = require('../config.json');
+const { contractAddress, ABI721 } = require('../config.json');
 const axios = require("axios");
 const { Client, Intents } = require('discord.js');
 
@@ -17,8 +17,8 @@ module.exports = {
 			return message.channel.send(`Token id must be a number!`);
 		}
 
-		const provider = new ethers.providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/95785e3b0d9a4434b3e2d1127bd15fbc");
-		const contract = new ethers.Contract('0x35029F03602454A6149b353dd8d227c4f2D99B7c', ABI, provider);
+        const provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com");
+        const contract = new ethers.Contract('0x219f446A9f23A7f22F84BbeAd6AE5F1d30FDA13A', ABI721, provider);
 
 		const tokenId = Number(args[0]);
         console.log(tokenId)

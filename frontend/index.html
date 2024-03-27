@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="./onload.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://pbs.twimg.com/profile_images/1746970091525165056/SvpLg1a-_400x400.jpg');
+      /* Windows 98 background color */
+    }
+
+    .window {
+      width: 400px;
+      height: 300px;
+      background-color: #c0c0c0;
+      /* Windows 98 window color */
+      border: 4px solid #000000;
+      /* Windows 98 window border color */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .title-bar {
+      background-color: #008080;
+      /* Windows 98 title bar color */
+      color: #ffffff;
+      /* Windows 98 title bar text color */
+      padding: 6px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .title {
+      flex: 1;
+    }
+
+    .buttons {
+      display: flex;
+    }
+
+    .close-button {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #ffffff;
+      /* Windows 98 close button color */
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 10px;
+      margin-top: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+    }
+
+    .button {
+      background-color: #008080;
+      /* Windows 98 button color */
+      color: #ffffff;
+      /* Windows 98 button text color */
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 10%;
+    }
+
+    .href {
+      text-decoration: none;
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="m-3 card">
+      <div class="card-body">
+        <h5 class="card-title" id="info">Not logged in</h5>
+        <a class="btn btn-primary mt-4" id="login" style="display:none;"
+          href="https://discord.com/oauth2/authorize?client_id=1215939807046533132&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000&scope=identify">Discord
+          Login</a>
+        <br>
+        <div class="row mb-3">
+          <div class="col-3">Your Coins</div>
+          <div class="col-9" id="coins">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window">
+    <div class="title-bar">
+      <div class="title">NFT Discord Bot</div>
+      <div class="buttons">
+        <div class="close-button"></div>
+      </div>
+    </div>
+    <div class="content">
+      <div id="wallet-card-container">
+        <!-- Rendering del componente WalletCard -->
+        <div class="WalletCard">
+          <button style="background: white;" onclick="connectwalletHandler()">Connect</button>
+          <div class="displayAccount">
+            <h4 class="walletAddress">Address:</h4>
+            <div class="balanceDisplay">
+              <h3>Wallet Amount: </h3>
+            </div>
+          </div>
+          <p id="errorMessage"></p>
+        </div>
+      </div>
+
+      <!-- Includi React, ReactDOM e Babel -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+      <!-- Includi ethers -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.6.9/ethers.umd.js"
+        integrity="sha512-3eJWsicAYexYwGnqbp0mul+7olAqIt5hbTziVN2hoDj7EUVk/YowV9urIcxnk+w9vtZ1mFSTYyPAXfoA5E5YSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <!-- Codice JavaScript per il componente WalletCard -->
+      <script>
+        let errorMessage = null;
+        let defaultAccount = null;
+        let userBalance = null;
+        const desiredChainId = 137;
+        const connectwalletHandler = async () => {
+          const provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com");
+          console.log(provider, window.ethereum)
+
+          const network = await provider.getNetwork();
+          const chainId = network.chainId ? BigNumber.from(network.chainId).toNumber() : 137;
+          if (typeof window !== 'undefined' && (window).ethereum !== 'undefined') {
+            const ethereum = window.ethereum;
+
+            if (ethereum.networkVersion !== String(desiredChainId)) {
+              try {
+                await ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: ethers.utils.hexlify(137) }]
+                });
+              } catch (err) {
+                if (err.code === 4902) {
+                  await ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                      {
+                        chainName: 'Polygon Mainnet',
+                        chainId: ethers.utils.hexlify(desiredChainId),
+                        nativeCurrency: { name: 'Matic', decimals: 18, symbol: 'MATIC' },
+                        rpcUrls: [``]
+                      }
+                    ]
+                  });
+
+                } else {
+                  errorMessage = "Please Install Metamask!";
+                  document.getElementById('errorMessage').innerText = errorMessage;
+                }
+              }
+
+              console.log(provider.getSigner(), provider)
+
+              if (window?.ethereum || window?.web3 || window?.e || window?.E) {
+                provider.send("eth_requestAccounts", []).then(async () => {
+                  await accountChangedHandler(provider.getSigner());
+                })
+              } else {
+                errorMessage = "Please Install Metamask!";
+                document.getElementById('errorMessage').innerText = errorMessage;
+              }
+            }
+          }
+        }
+
+        const accountChangedHandler = async (newAccount) => {
+          const address = await newAccount.getAddress();
+          defaultAccount = address;
+          const balance = await newAccount.getBalance()
+          userBalance = ethers.utils.formatEther(balance);
+          await getuserBalance(address)
+        }
+
+        const getuserBalance = async (address) => {
+          const balance = await provider.getBalance(address, "latest")
+        }
+
+        if (typeof window !== 'undefined' && window.ethereum) {
+          window.ethereum.on('chainChanged', async (chainId) => {
+            console.log('Chain changed:', chainId);
+            const ethereum = await window.ethereum;
+
+            if (ethereum.networkVersion !== String(desiredChainId)) {
+              try {
+                await ethereum.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [{ chainId: ethers.utils.hexlify(137) }]
+                });
+              } catch (err) {
+                if (err.code === 4902) {
+                  await ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                      {
+                        chainName: 'Polygon Mainnet',
+                        chainId: ethers.utils.hexlify(desiredChainId),
+                        nativeCurrency: { name: 'Matic', decimals: 18, symbol: 'MATIC' },
+                        rpcUrls: [``]
+                      }
+                    ]
+                  });
+
+                } else {
+                  errorMessage = "Please Install Metamask!";
+                  document.getElementById('errorMessage').innerText = errorMessage;
+                }
+              }
+
+
+              if (window?.ethereum || window?.web3 || window?.e || window?.E) {
+                const provider = new ethers.providers.JsonRpcProvider("https://polygon-rpc.com");
+                provider.send("eth_requestAccounts", []).then(async () => {
+                  await accountChangedHandler(provider.getSigner());
+                })
+                console.log(provider.getSigner(), provider)
+              } else {
+                errorMessage = "Please Install Metamask!";
+                document.getElementById('errorMessage').innerText = errorMessage;
+              }
+            }
+          });
+        }
+      </script>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
